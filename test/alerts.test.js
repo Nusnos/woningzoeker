@@ -53,7 +53,7 @@ test('unconfirmed users never receive property alerts', async () => {
   assert.equal(r.checked, 0); assert.equal(sent, 0);
 });
 test('existing all-source subscriptions keep their key and do not get a second email', async () => {
-  const store = new MemoryStore(); const legacyFilters = parseFilters(input().filters); delete legacyFilters.portal;
+  const store = new MemoryStore(); const legacyFilters = parseFilters(input().filters); delete legacyFilters.portal; delete legacyFilters.areaMode;
   const key = hash(`${input().email}\n${JSON.stringify(legacyFilters)}`);
   store.state.subscribers.legacy = { id: 'legacy', key, email: input().email, filters: legacyFilters, confirmedAt: Date.now(), createdAt: Date.now() };
   let sent = 0; await subscribe(store, input(), 'fixture-ip', async () => sent++);
@@ -61,13 +61,13 @@ test('existing all-source subscriptions keep their key and do not get a second e
 });
 test('Funda filter persists through confirmation and daily search, and mail includes the direct reference', async () => {
   const store = new MemoryStore(); const messages = [];
-  await subscribe(store, { ...input(), filters: { ...input().filters, portal: 'funda' } }, 'fixture-ip', async mail => messages.push(mail));
+  await subscribe(store, { ...input(), filters: { ...input().filters, portal: 'funda', areaMode: 'place' } }, 'fixture-ip', async mail => messages.push(mail));
   assert(messages[0].text.includes('alleen woningen met een Funda-link'));
   const id = Object.keys(store.state.subscribers)[0];
-  const search = async filters => { assert.equal(filters.portal, 'funda'); return { homes: [], complete: true }; };
+  const search = async filters => { assert.equal(filters.portal, 'funda'); assert.equal(filters.areaMode, 'place'); return { homes: [], complete: true }; };
   await confirm(store, makeToken(id, 'confirm'), search);
   const fundaUrl = 'https://www.funda.nl/detail/koop/den-bosch/appartement-lagelandstraat-156/44653422/';
-  await runDaily(store, { now: date, search: async filters => { assert.equal(filters.portal, 'funda'); return { homes: [{ ...home, fundaUrl }], complete: true }; }, send: async mail => messages.push(mail) });
+  await runDaily(store, { now: date, search: async filters => { assert.equal(filters.portal, 'funda'); assert.equal(filters.areaMode, 'place'); return { homes: [{ ...home, fundaUrl }], complete: true }; }, send: async mail => messages.push(mail) });
   assert(messages[1].text.includes(fundaUrl));
 });
 test('confirmation baselines current homes; repeated confirmation is idempotent', async () => {

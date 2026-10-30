@@ -2,6 +2,14 @@
 
 Actuele koop- en huurwoningen zoeken op locatie, hemelsbrede straal, minimum- en maximumprijs en eigen zoekwoorden. Gebouwd voor het bestaande Vercel-project **nusnos-projects/woningzoeker**, gekoppeld aan **Nusnos/woningzoeker**.
 
+## Zoekgebied en volledige resultaten
+
+De interface zoekt standaard in **de hele plaats plus de gekozen afstand buiten de officiële plaatsgrens**. PDOK levert daarvoor de BAG-woonplaatsgrens; Turf berekent of een woning binnen de plaats ligt of binnen de toegestane buffer. Bij een adres of postcode wordt een punt gebruikt. Met **Cirkel rond één zoekpunt** kun je expliciet de oude cirkelzoekmethode kiezen. Binnen een plaats krijgt een woning het label ‘Binnen plaats’; daarbuiten staat de afstand tot de plaatsgrens.
+
+De browser haalt vervolgpagina’s automatisch op en toont de voortgang. Pas na de laatste bronpagina staat er ‘zoekgebied volledig doorzocht bij de bron’. Na maximaal twintig API-aanvragen per batch kan de bezoeker verder laden. Lege tussenpagina’s stoppen het zoeken niet. Een nieuwe zoekopdracht annuleert de vorige browseraanvraag. De fout waarbij een verzoek voor pagina 2 nooit bij de bron terechtkwam is met een regressietest gerepareerd.
+
+Bestaande opgeslagen meldingen zonder gebiedskeuze blijven cirkelzoekopdrachten. Hun gebied wordt niet stilzwijgend groter. Bewaar een nieuwe zoekopdracht om over te gaan naar de hele plaats plus buffer. De API houdt om dezelfde reden `areaMode=point` als standaard; de interface stuurt expliciet `areaMode=place`.
+
 ## Funda-links en filter
 
 Bij **Woningaanbod → Alleen met Funda-link** worden uitsluitend woningen getoond waarvoor Buurtje.nl een expliciete Funda-detailverwijzing vermeldt. Deze woningen hebben een knop **Bekijk op Funda**; de Funda-verwijzing staat ook in woningmails. Het filter blijft behouden bij opslaan, bevestigen en de dagelijkse controle. Bestaande zoekopdrachten houden hun werking en woning-ID’s blijven gelijk.
@@ -65,7 +73,7 @@ vercel promote https://DE-GETESTE-DEPLOYMENT.vercel.app --yes --scope nusnos-pro
 
 De laatste regel mag pas na een geslaagde live zoektest van die build. De verificatiescripts gebruiken een lokaal genegeerde automation-bypass; `configure-bypass.js` configureert deze voor een beheerder. `configure-secrets.js` is een eenmalige bootstrap voor een nieuw project, geen commando om bestaande encryptiesleutels te vervangen.
 
-`npm test` voert 36 offline unit- en HTTP-tests uit, waaronder ongeldige filters, prijs- en straalgrenzen, gewijzigde bronstructuur, ingetrokken woningen, tokens, toestemming, concurrentie, baselines, afmelden, dubbel uitvoeren, SMTP-fouten, zomer-/wintertijd en veilige Funda-links inclusief behoud van bestaande meldingen. De vastgelegde HTML-fixtures bevatten echte op 30 oktober 2026 opgehaalde brongegevens en zijn uitsluitend testdata.
+`npm test` voert 44 offline unit- en HTTP-tests uit, waaronder ongeldige filters, prijs- en straalgrenzen, gewijzigde bronstructuur, ingetrokken woningen, tokens, toestemming, concurrentie, baselines, afmelden, dubbel uitvoeren, SMTP-fouten, zomer-/wintertijd en veilige Funda-links inclusief behoud van bestaande meldingen. De vastgelegde HTML-fixtures bevatten echte op 30 oktober 2026 opgehaalde brongegevens en zijn uitsluitend testdata.
 
 De echte mailtest is alleen bedoeld voor een expliciet toegestaan testadres en een omgeving zonder andere actieve zoekopdrachten:
 
@@ -81,4 +89,4 @@ Vercel Runtime Logs bevatten JSON-regels met tijdstip, operatie, foutcode en req
 
 Deze versie is begrensd op 500 opgeslagen zoekopdrachten en 20 bronpagina’s per volledige meldingscontrole. Te brede zoekopdrachten worden geweigerd in plaats van onvolledig verwerkt. De volledige dagelijkse taak heeft een verwerkingsbudget van circa vier minuten; bij overschrijding faalt hij zichtbaar en wordt de dag niet als voltooid gemarkeerd. Er is geen externe uptime-monitor of onafhankelijke dienstgarantie ingericht.
 
-Zoekresultaten gebruiken expliciete paginering. De beginpagina toont alleen het aanbod dat al is gecontroleerd; gebruik **Meer woningen controleren** voor volgende bronpagina’s. Aantallen zijn nooit een claim dat dit alle Nederlandse woningen zijn.
+Zoekresultaten worden automatisch pagina voor pagina opgehaald, met zichtbare voortgang. Als de batchlimiet is bereikt, kun je verder laden met **Meer woningen controleren**. Aantallen zijn nooit een claim dat dit alle Nederlandse woningen zijn.

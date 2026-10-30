@@ -1,10 +1,13 @@
+import { searchPages } from './search-pages.js';
 const $ = id => document.getElementById(id);
 const form = $('search-form');
 let activeFilters, shown = new Map(), nextPage = null, busy = false, pendingFilters;
+let searchController, searchVersion = 0;
 const money = value => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
 
 async function api(path, options = {}) {
-  const response = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers }, signal: AbortSignal.timeout(240000) });
+  const timeout = AbortSignal.timeout(240000);
+  const response = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers }, signal: options.signal ? AbortSignal.any([options.signal, timeout]) : timeout });
   let data;
   try { data = await response.json(); } catch { throw Error('De server is tijdelijk niet bereikbaar. Probeer het opnieuw.'); }
   if (!response.ok) throw Error(`${data.error || 'Er ging iets mis.'}${data.requestId ? ` Referentie: ${data.requestId}` : ''}`);
@@ -29,44 +32,57 @@ function render() {
     const meta = element('div', 'home-meta');
     if (home.area) meta.append(element('span', '', `${home.area} m²`));
     if (home.rooms) meta.append(element('span', '', `${home.rooms} kamers`));
-    meta.append(element('span', '', `${home.distance.toLocaleString('nl-NL')} km`));
+    meta.append(element('span', '', home.distanceKind === 'boundary' && home.distance === 0 ? 'Binnen plaats' : `${home.distance.toLocaleString('nl-NL')} km${home.distanceKind === 'boundary' ? ' buiten plaats' : ''}`));
     const bottom = element('div', 'home-bottom'); bottom.append(element('span', '', '✓ Gecontroleerd · Buurtje.nl'));
     const links = element('div', 'home-links');
     if (home.fundaUrl) { const funda = element('a', 'funda-link', 'Bekijk op Funda ↗'); funda.href = home.fundaUrl; funda.target = '_blank'; funda.rel = 'noopener noreferrer'; links.append(funda); }
     const arrow = element('a', '', home.fundaUrl ? 'Buurtje.nl ↗' : 'Bekijk ↗'); arrow.href = home.url; arrow.target = '_blank'; arrow.rel = 'noopener noreferrer'; links.append(arrow); bottom.append(links);
     content.append(heading, element('p', 'home-locality', home.locality), price, meta, bottom); card.append(photo, content); return card;
   }));
-  $('empty').hidden = homes.length > 0 || busy;
+  $('empty').hidden = homes.length > 0 || busy || Boolean(nextPage);
   $('more').hidden = !nextPage || busy;
-  $('result-count').textContent = `${homes.length} gecontroleerde ${homes.length === 1 ? 'woning' : 'woningen'}${nextPage ? ' · er is meer aanbod om te controleren' : ' · zoekopdracht volledig doorzocht'}`;
+  $('result-count').textContent = `${homes.length}${busy ? ' tot nu toe' : ''} gecontroleerde ${homes.length === 1 ? 'woning' : 'woningen'}${busy ? ' · volgende bronpagina wordt opgehaald…' : nextPage ? ' · nog niet volledig, laad de rest' : ' · zoekgebied volledig doorzocht bij de bron'}`;
 }
 async function search(append = false) {
-  if (busy) return;
+  if (append && busy) return;
   if (!append && !form.reportValidity()) return;
   const proposed = append ? activeFilters : Object.fromEntries(new FormData(form));
   if (+proposed.minPrice > +proposed.maxPrice) { $('error').textContent = 'De minimumprijs mag niet hoger zijn dan de maximumprijs.'; $('error').hidden = false; return; }
-  busy = true; $('search-button').disabled = true; $('loading').hidden = false; $('error').hidden = true; $('more').hidden = true; $('empty').hidden = true;
-  if (!append) { shown.clear(); $('homes').replaceChildren(); $('source-info').hidden = true; $('result-count').textContent = 'Actueel aanbod ophalen en controleren…'; }
+  searchController?.abort();
+  searchController = new AbortController();
+  const version = ++searchVersion, controller = searchController;
+  const firstPage = append ? nextPage : 1;
+  busy = true; $('loading').hidden = false; $('error').hidden = true; $('more').hidden = true; $('empty').hidden = true;
+  if (!append) { shown.clear(); nextPage = 1; activeFilters = null; $('homes').replaceChildren(); $('source-info').hidden = true; $('search-scope').textContent = ''; $('result-count').textContent = 'Actueel aanbod ophalen en controleren…'; }
   try {
-    const query = new URLSearchParams(proposed); if (append) query.set('page', nextPage);
-    const result = await api(`/api/search?${query}`);
-    activeFilters = result.filters; nextPage = result.nextPage;
-    for (const home of result.homes) shown.set(home.id, home);
-    $('result-label').textContent = `${activeFilters.type === 'huur' ? 'HUREN' : 'KOPEN'} · ${activeFilters.location.toUpperCase()} · ${activeFilters.radius} KM${activeFilters.portal === 'funda' ? ' · MET FUNDA-LINK' : ''}`;
-    $('result-title').textContent = `Jouw volgende plek`;
-    $('source-info').textContent = `${result.notice} Laatst gecontroleerd: ${new Date(result.checkedAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam', dateStyle: 'short', timeStyle: 'short' })}. Zoekpunt: ${result.center.name}. Afstanden zijn hemelsbreed. Gebruik ‘Meer woningen controleren’ om verder te zoeken.`;
-    $('source-info').hidden = false;
+    const request = (page, signal) => {
+      const query = new URLSearchParams(proposed); query.set('page', page);
+      return api(`/api/search?${query}`, { signal });
+    };
+    for await (const result of searchPages(request, { startPage: firstPage, signal: controller.signal })) {
+      if (version !== searchVersion) return;
+      activeFilters = result.filters; nextPage = result.nextPage;
+      for (const home of result.homes) shown.set(home.id, home);
+      $('result-label').textContent = `${activeFilters.type === 'huur' ? 'HUREN' : 'KOPEN'} · ${activeFilters.location.toUpperCase()} · ${activeFilters.portal === 'funda' ? 'MET FUNDA-LINK' : 'ALLE WONINGEN'}`;
+      $('result-title').textContent = 'Jouw volgende plek';
+      const scope = result.center.kind === 'place' ? `Hele plaats ${activeFilters.location} plus ${activeFilters.radius} km buiten de officiële plaatsgrens.` : `Cirkel van ${activeFilters.radius} km rond het zoekpunt voor ${result.center.name}. Dit omvat niet automatisch de hele plaats.`;
+      $('search-scope').textContent = scope;
+      $('source-info').textContent = `${result.notice} Laatst gecontroleerd: ${new Date(result.checkedAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam', dateStyle: 'short', timeStyle: 'short' })}. ${scope} Afstanden zijn hemelsbreed.`;
+      $('source-info').hidden = false; $('loading').hidden = true;
+      render();
+    }
   } catch (error) {
+    if (version !== searchVersion || controller.signal.aborted) return;
     $('error').textContent = error.name === 'TimeoutError' ? 'De controle duurt te lang. Verklein de zoekstraal en probeer opnieuw.' : error.message;
     $('error').hidden = false;
-    if (!append) { activeFilters = null; nextPage = null; $('result-count').textContent = 'De zoekopdracht is niet voltooid.'; }
-  } finally { busy = false; $('search-button').disabled = false; $('loading').hidden = true; if (activeFilters) render(); }
+    if (!activeFilters) $('result-count').textContent = 'De zoekopdracht is niet voltooid.';
+  } finally { if (version === searchVersion) { busy = false; $('loading').hidden = true; if (activeFilters) render(); } }
 }
 
 function openSave() {
   pendingFilters = Object.fromEntries(new FormData(form));
   if (!form.reportValidity() || +pendingFilters.minPrice > +pendingFilters.maxPrice) return;
-  $('alert-summary').textContent = `${pendingFilters.type === 'huur' ? 'Huurwoningen' : 'Koopwoningen'} · ${pendingFilters.location} + ${pendingFilters.radius} km · ${money(+pendingFilters.minPrice)} t/m ${money(+pendingFilters.maxPrice)}${pendingFilters.type === 'huur' ? ' per maand' : ''}${pendingFilters.keywords ? ` · ${pendingFilters.keywords}` : ''}${pendingFilters.portal === 'funda' ? ' · Alleen met Funda-link (via Buurtje.nl)' : ''}`;
+  $('alert-summary').textContent = `${pendingFilters.type === 'huur' ? 'Huurwoningen' : 'Koopwoningen'} · ${pendingFilters.location} · ${pendingFilters.areaMode === 'place' ? 'hele plaats + ' : 'rond zoekpunt: '}${pendingFilters.radius} km · ${money(+pendingFilters.minPrice)} t/m ${money(+pendingFilters.maxPrice)}${pendingFilters.type === 'huur' ? ' per maand' : ''}${pendingFilters.keywords ? ` · ${pendingFilters.keywords}` : ''}${pendingFilters.portal === 'funda' ? ' · Alleen met Funda-link (via Buurtje.nl)' : ''}`;
   $('alert-status').textContent = ''; $('alert-submit').disabled = false; $('save-dialog').showModal();
 }
 form.addEventListener('submit', event => { event.preventDefault(); search(); });

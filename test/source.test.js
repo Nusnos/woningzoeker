@@ -1,11 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseFilters, distanceKm, boundingBox, parseCards, parseDetail, keywordMatch, searchHomes, geocode, safeSourceUrl, safeFundaUrl } from '../lib/source.js';
+import { parseFilters, distanceKm, distanceFromArea, boundingBox, parseCards, parseDetail, keywordMatch, searchHomes, geocode, safeSourceUrl, safeFundaUrl } from '../lib/source.js';
+import { wktToGeoJSON } from '@terraformer/wkt';
 
 const card = readFileSync(new URL('./fixtures/card.html', import.meta.url), 'utf8');
 const detail = readFileSync(new URL('./fixtures/detail.html', import.meta.url), 'utf8');
 const fundaSources = readFileSync(new URL('./fixtures/funda-sources.html', import.meta.url), 'utf8');
+const geography = JSON.parse(readFileSync(new URL('./fixtures/den-bosch-geography.json', import.meta.url), 'utf8'));
 const center = { lat: 51.6931, lng: 5.3239, name: 'Testcentrum op werkelijk woningadres' };
 const mockHttp = (override = {}) => async (url, options) => {
   if (String(url).includes('/free?')) return Response.json({ response: { docs: [{ centroide_ll: 'POINT(5.3239 51.6931)', weergavenaam: 'Den Bosch' }] } });
@@ -89,4 +91,36 @@ test('pagination is explicit; malformed page input is refused', async () => {
 });
 test('PDOK location not found is distinct from no matching homes', async () => {
   await assert.rejects(geocode('unknown', async () => Response.json({ response: { docs: [] } })), { code: 'LOCATION_NOT_FOUND' });
+});
+test('page 2 and subsequent pages are actually requested, instead of being declared complete without fetching', async () => {
+  const requested = [];
+  const http = async (_url, options) => {
+    if (!options?.body) return new Response(detail);
+    requested.push(Number(options.body.get('page')));
+    return Response.json({ success: true, data: { html: card, total: 3, total_pages: 3 } });
+  };
+  const result = await searchHomes({}, { center, http, startPage: 2, maxPages: 2, complete: true });
+  assert.deepEqual(requested, [2, 3]); assert.equal(result.scanned, 2); assert.equal(result.nextPage, null);
+});
+test('Den Bosch place mode includes the historic city, even though it is outside the 1 km centroid circle', async () => {
+  const http = async () => Response.json({ response: { docs: [geography] } });
+  const place = await geocode('Den Bosch', http, 'place');
+  const historicCity = { lat: 51.688, lng: 5.303 };
+  assert(distanceKm(place, historicCity) > 1);
+  assert.equal(distanceFromArea(place, historicCity), 0);
+  const box = boundingBox(place, 1);
+  assert(box.sw_lat < historicCity.lat && box.ne_lat > historicCity.lat);
+  assert.equal((await geocode('Den Bosch', http, 'point')).geometry, undefined);
+});
+test('place buffer excludes points beyond 1 km and includes each part of a multipolygon', () => {
+  const place = { ...center, geometry: wktToGeoJSON('MULTIPOLYGON(((5 51,5.01 51,5.01 51.01,5 51.01,5 51)),((5.1 51,5.11 51,5.11 51.01,5.1 51.01,5.1 51)))') };
+  assert.equal(distanceFromArea(place, { lng: 5.105, lat: 51.005 }), 0);
+  assert(distanceFromArea(place, { lng: 5.015, lat: 51.005 }) < 1);
+  assert(distanceFromArea(place, { lng: 5.04, lat: 51.005 }) > 1);
+});
+test('missing place geometry fails explicitly; addresses retain point search', async () => {
+  const http = async () => Response.json({ response: { docs: [{ ...geography, geometrie_ll: undefined }] } });
+  await assert.rejects(geocode('Den Bosch', http, 'place'), { code: 'LOCATION_GEOMETRY' });
+  const addressHttp = async () => Response.json({ response: { docs: [{ ...geography, type: 'adres' }] } });
+  assert.equal((await geocode('address', addressHttp, 'place')).kind, 'point');
 });

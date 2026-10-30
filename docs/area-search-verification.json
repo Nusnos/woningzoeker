@@ -1,0 +1,88 @@
+{
+  "at": "2026-10-30T21:29:47.170Z",
+  "deployment": "https://woningzoeker-gplswhi0r-nusnos-projects.vercel.app",
+  "filters": {
+    "location": "Den Bosch",
+    "radius": "1",
+    "minPrice": "400000",
+    "maxPrice": "750000",
+    "type": "koop",
+    "portal": "all",
+    "areaMode": "place"
+  },
+  "passed": true,
+  "verifiedHomes": 289,
+  "apiPages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "complete": true,
+  "pointCircleFirstPageCount": 8,
+  "examples": [
+    {
+      "address": "Aartshertogenlaan 263",
+      "price": 450000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/appartement/aartshertogenlaan-263-s-hertogenbosch/"
+    },
+    {
+      "address": "Meester van Goerlestraat 11",
+      "price": 580000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/tussenwoning/meester-van-goerlestraat-11-s-hertogenbosch/"
+    },
+    {
+      "address": "Vogelstraat 19",
+      "price": 509000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/appartement/vogelstraat-19-s-hertogenbosch/"
+    },
+    {
+      "address": "van Broeckhovenlaan 35",
+      "price": 498000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/tussenwoning/van-broeckhovenlaan-35-s-hertogenbosch/"
+    },
+    {
+      "address": "Graafseweg 201",
+      "price": 575000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/tussenwoning/graafseweg-201-s-hertogenbosch/"
+    },
+    {
+      "address": "Vlijmenseweg 52",
+      "price": 650000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/appartement/vlijmenseweg-52-s-hertogenbosch/"
+    },
+    {
+      "address": "Leuvenstraat 3",
+      "price": 425000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/tussenwoning/leuvenstraat-3-s-hertogenbosch/"
+    },
+    {
+      "address": "Torenstraat 17",
+      "price": 475000,
+      "distance": 0,
+      "distanceKind": "boundary",
+      "url": "https://buurtje.nl/appartement/torenstraat-17-s-hertogenbosch/"
+    }
+  ]
+}
