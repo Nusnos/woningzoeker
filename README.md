@@ -2,6 +2,12 @@
 
 Actuele koop- en huurwoningen zoeken op locatie, hemelsbrede straal, minimum- en maximumprijs en eigen zoekwoorden. Gebouwd voor het bestaande Vercel-project **nusnos-projects/woningzoeker**, gekoppeld aan **Nusnos/woningzoeker**.
 
+## Funda-links en filter
+
+Bij **Woningaanbod → Alleen met Funda-link** worden uitsluitend woningen getoond waarvoor Buurtje.nl een expliciete Funda-detailverwijzing vermeldt. Deze woningen hebben een knop **Bekijk op Funda**; de Funda-verwijzing staat ook in woningmails. Het filter blijft behouden bij opslaan, bevestigen en de dagelijkse controle. Bestaande zoekopdrachten houden hun werking en woning-ID’s blijven gelijk.
+
+Dit is **geen rechtstreekse Funda-zoekkoppeling en geen garantie op het volledige Funda-aanbod**. Een rechtstreekse HTTP-proef op 30 oktober 2026 gaf voor zowel zoeken als een detailpagina een beveiligingspagina, ondanks HTTP 200. Alleen daadwerkelijk in de bron vermelde HTTPS-links naar Funda-woningdetails worden overgenomen; links worden niet geraden. Adres, prijs en beschikbaarheid worden gecontroleerd bij Buurtje.nl. De gelinkte Funda-pagina zelf is niet automatisch gecontroleerd. Zie [de live Funda-linktest](docs/funda-verification.json).
+
 ## Werkelijke woningbron
 
 De eerste live proef is uitgevoerd **voordat de interface werd gebouwd**: koopwoningen in Den Bosch tot €500.000. Buurtje.nl gaf HTTP 200; adressen, prijzen en beschikbaarheid zijn op de directe woningpagina’s gecontroleerd. Zie [brononderzoek](docs/source-research.md), [eerste bronproef](docs/source-probe.json), [zoektest](docs/live-search.json) en [Vercel-test](docs/deployment-verification.json).
@@ -59,7 +65,7 @@ vercel promote https://DE-GETESTE-DEPLOYMENT.vercel.app --yes --scope nusnos-pro
 
 De laatste regel mag pas na een geslaagde live zoektest van die build. De verificatiescripts gebruiken een lokaal genegeerde automation-bypass; `configure-bypass.js` configureert deze voor een beheerder. `configure-secrets.js` is een eenmalige bootstrap voor een nieuw project, geen commando om bestaande encryptiesleutels te vervangen.
 
-`npm test` voert 30 offline unit- en HTTP-tests uit, waaronder ongeldige filters, prijs- en straalgrenzen, gewijzigde bronstructuur, ingetrokken woningen, tokens, toestemming, concurrentie, baselines, afmelden, dubbel uitvoeren, SMTP-fouten en zomer-/wintertijd. De vastgelegde HTML-fixtures bevatten echte op 30 oktober 2026 opgehaalde brongegevens en zijn uitsluitend testdata.
+`npm test` voert 36 offline unit- en HTTP-tests uit, waaronder ongeldige filters, prijs- en straalgrenzen, gewijzigde bronstructuur, ingetrokken woningen, tokens, toestemming, concurrentie, baselines, afmelden, dubbel uitvoeren, SMTP-fouten, zomer-/wintertijd en veilige Funda-links inclusief behoud van bestaande meldingen. De vastgelegde HTML-fixtures bevatten echte op 30 oktober 2026 opgehaalde brongegevens en zijn uitsluitend testdata.
 
 De echte mailtest is alleen bedoeld voor een expliciet toegestaan testadres en een omgeving zonder andere actieve zoekopdrachten:
 

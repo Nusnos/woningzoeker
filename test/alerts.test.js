@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { MemoryStore, mutate } from '../lib/store.js';
 import { encrypt, decrypt, makeToken, readToken, authorized } from '../lib/security.js';
 import { subscribe, confirm, unsubscribe, runDaily, localDay, scheduledTime } from '../lib/alerts.js';
+import { hash, parseFilters } from '../lib/source.js';
 
 beforeEach(() => { process.env.APP_SECRET = randomBytes(32).toString('base64url'); process.env.APP_URL = 'https://woningzoeker-one.vercel.app'; });
 const input = () => ({ email: 'fixture@example.org', consent: true, filters: { location: 'Den Bosch', radius: 5, maxPrice: 500000 } });
@@ -50,6 +51,24 @@ test('unconfirmed users never receive property alerts', async () => {
   await subscribe(store, input(), 'fixture-ip', async () => {});
   const r = await runDaily(store, { now: date, search: async () => result, send: async () => sent++ });
   assert.equal(r.checked, 0); assert.equal(sent, 0);
+});
+test('existing all-source subscriptions keep their key and do not get a second email', async () => {
+  const store = new MemoryStore(); const legacyFilters = parseFilters(input().filters); delete legacyFilters.portal;
+  const key = hash(`${input().email}\n${JSON.stringify(legacyFilters)}`);
+  store.state.subscribers.legacy = { id: 'legacy', key, email: input().email, filters: legacyFilters, confirmedAt: Date.now(), createdAt: Date.now() };
+  let sent = 0; await subscribe(store, input(), 'fixture-ip', async () => sent++);
+  assert.equal(sent, 0); assert.equal(Object.keys(store.state.subscribers).length, 1);
+});
+test('Funda filter persists through confirmation and daily search, and mail includes the direct reference', async () => {
+  const store = new MemoryStore(); const messages = [];
+  await subscribe(store, { ...input(), filters: { ...input().filters, portal: 'funda' } }, 'fixture-ip', async mail => messages.push(mail));
+  assert(messages[0].text.includes('alleen woningen met een Funda-link'));
+  const id = Object.keys(store.state.subscribers)[0];
+  const search = async filters => { assert.equal(filters.portal, 'funda'); return { homes: [], complete: true }; };
+  await confirm(store, makeToken(id, 'confirm'), search);
+  const fundaUrl = 'https://www.funda.nl/detail/koop/den-bosch/appartement-lagelandstraat-156/44653422/';
+  await runDaily(store, { now: date, search: async filters => { assert.equal(filters.portal, 'funda'); return { homes: [{ ...home, fundaUrl }], complete: true }; }, send: async mail => messages.push(mail) });
+  assert(messages[1].text.includes(fundaUrl));
 });
 test('confirmation baselines current homes; repeated confirmation is idempotent', async () => {
   const store = new MemoryStore(); await subscribe(store, input(), 'fixture-ip', async () => {});

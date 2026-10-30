@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-30T21:10:00.836Z",
+  "deployment": "https://woningzoeker-5idi6esw7-nusnos-projects.vercel.app",
+  "query": {
+    "location": "Den Bosch",
+    "radius": 5,
+    "minPrice": 0,
+    "maxPrice": 500000,
+    "type": "koop",
+    "keywords": "",
+    "portal": "funda"
+  },
+  "passed": true,
+  "withFundaLinks": 21,
+  "allHomesOnFirstPage": 33,
+  "priceAndKeywordMatches": 27,
+  "examples": [
+    {
+      "address": "Rijnstraat 222",
+      "price": 399000,
+      "url": "https://buurtje.nl/appartement/rijnstraat-222-s-hertogenbosch/",
+      "fundaUrl": "https://www.funda.nl/detail/koop/den-bosch/appartement-rijnstraat-222/44654051/"
+    },
+    {
+      "address": "Geysendorfferstraat 29",
+      "price": 375000,
+      "url": "https://buurtje.nl/hoekwoning/geysendorfferstraat-29-s-hertogenbosch/",
+      "fundaUrl": "https://www.funda.nl/detail/koop/den-bosch/huis-geysendorfferstraat-29/44654221/"
+    },
+    {
+      "address": "Lagemorgenlaan 180",
+      "price": 350000,
+      "url": "https://buurtje.nl/appartement/lagemorgenlaan-180-s-hertogenbosch/",
+      "fundaUrl": "https://www.funda.nl/detail/koop/den-bosch/appartement-lagemorgenlaan-180/44654128/"
+    },
+    {
+      "address": "Maassingel 296",
+      "price": 342500,
+      "url": "https://buurtje.nl/appartement/maassingel-296-s-hertogenbosch/",
+      "fundaUrl": "https://www.funda.nl/detail/koop/den-bosch/appartement-maassingel-296/44654671/"
+    },
+    {
+      "address": "Akkerseweg 8",
+      "price": 485000,
+      "url": "https://buurtje.nl/vrijstaande-woning/akkerseweg-8-hedel/",
+      "fundaUrl": "https://www.funda.nl/detail/koop/hedel/huis-akkerseweg-8/44653762/"
+    }
+  ],
+  "scope": "References supplied by Buurtje.nl. Funda pages are not automatically verified, and this is not a complete independent Funda feed."
+}

@@ -21,16 +21,19 @@ function render() {
   if (order === 'distance') homes.sort((a,b) => a.distance - b.distance);
   $('homes').replaceChildren(...homes.map(home => {
     const card = element('article', 'home-card');
-    const photo = element('a', 'home-photo'); photo.href = home.url; photo.target = '_blank'; photo.rel = 'noopener noreferrer'; photo.setAttribute('aria-label', `Bekijk ${home.address} bij Buurtje.nl`);
+    const photo = element('a', 'home-photo'); photo.href = home.fundaUrl || home.url; photo.target = '_blank'; photo.rel = 'noopener noreferrer'; photo.setAttribute('aria-label', `Bekijk ${home.address} bij ${home.fundaUrl ? 'Funda' : 'Buurtje.nl'}`);
     if (home.image) { const image = element('img'); image.src = home.image; image.alt = `Woning aan ${home.address}`; image.loading = 'lazy'; image.addEventListener('error', () => image.remove(), { once: true }); photo.append(image); }
     photo.append(element('span', 'home-badge', home.type === 'huur' ? 'Te huur' : 'Te koop'));
-    const content = element('div', 'home-content'); const heading = element('h3'); const link = element('a', '', home.address); link.href = home.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; heading.append(link);
+    const content = element('div', 'home-content'); const heading = element('h3'); const link = element('a', '', home.address); link.href = home.fundaUrl || home.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; heading.append(link);
     const price = element('p', 'home-price', money(home.price)); price.append(element('span', 'price-suffix', home.type === 'huur' ? 'per maand' : 'vraagprijs'));
     const meta = element('div', 'home-meta');
     if (home.area) meta.append(element('span', '', `${home.area} m²`));
     if (home.rooms) meta.append(element('span', '', `${home.rooms} kamers`));
     meta.append(element('span', '', `${home.distance.toLocaleString('nl-NL')} km`));
-    const bottom = element('div', 'home-bottom'); bottom.append(element('span', '', '✓ Gecontroleerd · Buurtje.nl')); const arrow = element('a', '', 'Bekijk ↗'); arrow.href = home.url; arrow.target = '_blank'; arrow.rel = 'noopener noreferrer'; bottom.append(arrow);
+    const bottom = element('div', 'home-bottom'); bottom.append(element('span', '', '✓ Gecontroleerd · Buurtje.nl'));
+    const links = element('div', 'home-links');
+    if (home.fundaUrl) { const funda = element('a', 'funda-link', 'Bekijk op Funda ↗'); funda.href = home.fundaUrl; funda.target = '_blank'; funda.rel = 'noopener noreferrer'; links.append(funda); }
+    const arrow = element('a', '', home.fundaUrl ? 'Buurtje.nl ↗' : 'Bekijk ↗'); arrow.href = home.url; arrow.target = '_blank'; arrow.rel = 'noopener noreferrer'; links.append(arrow); bottom.append(links);
     content.append(heading, element('p', 'home-locality', home.locality), price, meta, bottom); card.append(photo, content); return card;
   }));
   $('empty').hidden = homes.length > 0 || busy;
@@ -49,7 +52,7 @@ async function search(append = false) {
     const result = await api(`/api/search?${query}`);
     activeFilters = result.filters; nextPage = result.nextPage;
     for (const home of result.homes) shown.set(home.id, home);
-    $('result-label').textContent = `${activeFilters.type === 'huur' ? 'HUREN' : 'KOPEN'} · ${activeFilters.location.toUpperCase()} · ${activeFilters.radius} KM`;
+    $('result-label').textContent = `${activeFilters.type === 'huur' ? 'HUREN' : 'KOPEN'} · ${activeFilters.location.toUpperCase()} · ${activeFilters.radius} KM${activeFilters.portal === 'funda' ? ' · MET FUNDA-LINK' : ''}`;
     $('result-title').textContent = `Jouw volgende plek`;
     $('source-info').textContent = `${result.notice} Laatst gecontroleerd: ${new Date(result.checkedAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam', dateStyle: 'short', timeStyle: 'short' })}. Zoekpunt: ${result.center.name}. Afstanden zijn hemelsbreed. Gebruik ‘Meer woningen controleren’ om verder te zoeken.`;
     $('source-info').hidden = false;
@@ -63,7 +66,7 @@ async function search(append = false) {
 function openSave() {
   pendingFilters = Object.fromEntries(new FormData(form));
   if (!form.reportValidity() || +pendingFilters.minPrice > +pendingFilters.maxPrice) return;
-  $('alert-summary').textContent = `${pendingFilters.type === 'huur' ? 'Huurwoningen' : 'Koopwoningen'} · ${pendingFilters.location} + ${pendingFilters.radius} km · ${money(+pendingFilters.minPrice)} t/m ${money(+pendingFilters.maxPrice)}${pendingFilters.type === 'huur' ? ' per maand' : ''}${pendingFilters.keywords ? ` · ${pendingFilters.keywords}` : ''}`;
+  $('alert-summary').textContent = `${pendingFilters.type === 'huur' ? 'Huurwoningen' : 'Koopwoningen'} · ${pendingFilters.location} + ${pendingFilters.radius} km · ${money(+pendingFilters.minPrice)} t/m ${money(+pendingFilters.maxPrice)}${pendingFilters.type === 'huur' ? ' per maand' : ''}${pendingFilters.keywords ? ` · ${pendingFilters.keywords}` : ''}${pendingFilters.portal === 'funda' ? ' · Alleen met Funda-link (via Buurtje.nl)' : ''}`;
   $('alert-status').textContent = ''; $('alert-submit').disabled = false; $('save-dialog').showModal();
 }
 form.addEventListener('submit', event => { event.preventDefault(); search(); });

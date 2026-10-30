@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseFilters, distanceKm, boundingBox, parseCards, parseDetail, keywordMatch, searchHomes, geocode, safeSourceUrl } from '../lib/source.js';
+import { parseFilters, distanceKm, boundingBox, parseCards, parseDetail, keywordMatch, searchHomes, geocode, safeSourceUrl, safeFundaUrl } from '../lib/source.js';
 
 const card = readFileSync(new URL('./fixtures/card.html', import.meta.url), 'utf8');
 const detail = readFileSync(new URL('./fixtures/detail.html', import.meta.url), 'utf8');
+const fundaSources = readFileSync(new URL('./fixtures/funda-sources.html', import.meta.url), 'utf8');
 const center = { lat: 51.6931, lng: 5.3239, name: 'Testcentrum op werkelijk woningadres' };
 const mockHttp = (override = {}) => async (url, options) => {
   if (String(url).includes('/free?')) return Response.json({ response: { docs: [{ centroide_ll: 'POINT(5.3239 51.6931)', weergavenaam: 'Den Bosch' }] } });
@@ -13,7 +14,7 @@ const mockHttp = (override = {}) => async (url, options) => {
 };
 
 test('filters reject invalid prices, ranges, types and radii', () => {
-  for (const bad of [{ minPrice: 10, maxPrice: 1 }, { radius: -1 }, { radius: 51 }, { radius: 'NaN' }, { maxPrice: Infinity }, { type: 'other' }, { location: '' }, { keywords: 'x'.repeat(121) }]) assert.throws(() => parseFilters(bad), { code: 'INVALID_FILTER' });
+  for (const bad of [{ minPrice: 10, maxPrice: 1 }, { radius: -1 }, { radius: 51 }, { radius: 'NaN' }, { maxPrice: Infinity }, { type: 'other' }, { portal: 'unknown' }, { location: '' }, { keywords: 'x'.repeat(121) }]) assert.throws(() => parseFilters(bad), { code: 'INVALID_FILTER' });
   assert.equal(parseFilters({ type: 'huur' }).maxPrice, 2000);
 });
 test('great-circle radius excludes points just outside the requested circle', () => {
@@ -31,6 +32,30 @@ test('unsafe source URLs are refused', () => {
   assert.equal(safeSourceUrl('https://evil.example/home'), null);
   assert.equal(safeSourceUrl('javascript:alert(1)'), null);
   assert.equal(safeSourceUrl('https://user@buurtje.nl/a'), null);
+});
+test('only real HTTPS Funda property paths are accepted and tracking is removed', () => {
+  const url = 'https://www.funda.nl/detail/koop/den-bosch/appartement-lagelandstraat-156/44653422/';
+  assert.equal(safeFundaUrl(url + '?utm_source=example#section'), url);
+  assert.equal(safeFundaUrl(url.replace('www.funda.nl', 'funda.nl')), url);
+  for (const bad of [undefined, url.replace('https:', 'http:'), url.replace('www.funda.nl', 'www.funda.nl.example.org'), url.replace('www.funda.nl', 'someone@www.funda.nl'), 'https://www.funda.nl/makelaar/1234/', 'https://www.funda.nl/zoeken/koop/', 'javascript:alert(1)']) assert.equal(safeFundaUrl(bad), null);
+});
+test('Funda references come from the actual source list, not from related homes', () => {
+  const parsed = parseDetail(detail + fundaSources);
+  assert.deepEqual(parsed.fundaUrls, ['https://www.funda.nl/detail/koop/den-bosch/appartement-lagelandstraat-156/44653422/']);
+  assert.deepEqual(parseDetail(detail + '<a href="https://www.funda.nl/detail/koop/den-bosch/huis-other/12345/">Related</a>').fundaUrls, []);
+});
+test('Funda filter excludes homes without a Funda reference and keeps stable home IDs', async () => {
+  const all = await searchHomes({}, { center, http: mockHttp() });
+  assert.equal(all.homes.length, 1); assert.equal(all.homes[0].fundaUrl, null);
+  assert.equal((await searchHomes({ portal: 'funda' }, { center, http: mockHttp() })).homes.length, 0);
+  const funda = await searchHomes({ portal: 'funda' }, { center, http: mockHttp({ detail: detail + fundaSources }) });
+  assert.equal(funda.homes.length, 1); assert.equal(funda.homes[0].id, all.homes[0].id);
+  assert(funda.homes[0].fundaUrl.endsWith('/44653422/'));
+  assert(funda.notice.includes('geen volledige Funda-feed'));
+});
+test('a koop reference cannot qualify a rental for the Funda filter', async () => {
+  const result = await searchHomes({ type: 'huur', maxPrice: 500000, portal: 'funda' }, { center, http: mockHttp({ detail: detail + fundaSources }) });
+  assert.equal(result.homes.length, 0);
 });
 test('schema changes fail loudly instead of producing zero homes', async () => {
   assert.throws(() => parseCards('<div class="pc">changed</div>'), { code: 'SOURCE_SCHEMA' });
