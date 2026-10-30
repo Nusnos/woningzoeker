@@ -1,0 +1,55 @@
+{
+  "at": "2026-10-30T20:57:31.182Z",
+  "deployment": "https://woningzoeker-n4yseed6g-nusnos-projects.vercel.app",
+  "results": [
+    {
+      "test": "live sale search from Vercel",
+      "passed": true,
+      "count": 33,
+      "example": [
+        {
+          "address": "Orthenstraat 41",
+          "price": 398000,
+          "url": "https://buurtje.nl/appartement/orthenstraat-41-s-hertogenbosch/"
+        },
+        {
+          "address": "Verwersstraat 108B",
+          "price": 275000,
+          "url": "https://buurtje.nl/appartement/verwersstraat-108b-s-hertogenbosch/"
+        },
+        {
+          "address": "Aartshertogenlaan 263",
+          "price": 450000,
+          "url": "https://buurtje.nl/appartement/aartshertogenlaan-263-s-hertogenbosch/"
+        }
+      ]
+    },
+    {
+      "test": "min/max price and keyword search",
+      "passed": true,
+      "count": 14
+    },
+    {
+      "test": "live rental search",
+      "passed": true,
+      "count": 35
+    },
+    {
+      "test": "different location and 1 km radius",
+      "passed": true,
+      "count": 33
+    },
+    {
+      "test": "empty real search produces no fabricated fallback",
+      "passed": true
+    },
+    {
+      "test": "production private storage and SMTP authentication",
+      "passed": true
+    },
+    {
+      "test": "authenticated Vercel fallback cron",
+      "passed": true
+    }
+  ]
+}

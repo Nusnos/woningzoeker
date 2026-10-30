@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "express",
+  "installCommand": "npm ci",
+  "regions": ["fra1"],
+  "crons": [
+    { "path": "/api/cron/daily?slot=summer", "schedule": "0 11 * * *" },
+    { "path": "/api/cron/daily?slot=winter", "schedule": "0 12 * * *" }
+  ],
+  "functions": { "server.js": { "maxDuration": 300, "includeFiles": "public/**" } }
+}

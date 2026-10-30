@@ -1,0 +1,219 @@
+{
+  "checkedAt": "2026-10-30T20:45:43.190Z",
+  "durationMs": 2512,
+  "passed": true,
+  "query": {
+    "location": "Den Bosch",
+    "radius": 5,
+    "minPrice": 0,
+    "maxPrice": 500000,
+    "type": "koop",
+    "keywords": ""
+  },
+  "center": {
+    "name": "'s-Hertogenbosch, 's-Hertogenbosch, Noord-Brabant",
+    "lat": 51.70997488,
+    "lng": 5.29571059
+  },
+  "verified": 33,
+  "homes": [
+    {
+      "address": "Orthenstraat 41",
+      "locality": "5211 SV 's-Hertogenbosch",
+      "price": 398000,
+      "url": "https://buurtje.nl/appartement/orthenstraat-41-s-hertogenbosch/"
+    },
+    {
+      "address": "Verwersstraat 108B",
+      "locality": "5211 HZ 's-Hertogenbosch",
+      "price": 275000,
+      "url": "https://buurtje.nl/appartement/verwersstraat-108b-s-hertogenbosch/"
+    },
+    {
+      "address": "Aartshertogenlaan 263",
+      "locality": "5212 CG 's-Hertogenbosch",
+      "price": 450000,
+      "url": "https://buurtje.nl/appartement/aartshertogenlaan-263-s-hertogenbosch/"
+    },
+    {
+      "address": "van Broeckhovenlaan 35",
+      "locality": "5213 HV 's-Hertogenbosch",
+      "price": 498000,
+      "url": "https://buurtje.nl/tussenwoning/van-broeckhovenlaan-35-s-hertogenbosch/"
+    },
+    {
+      "address": "Boschveldweg 38",
+      "locality": "5211 VG 's-Hertogenbosch",
+      "price": 375000,
+      "url": "https://buurtje.nl/appartement/boschveldweg-38-s-hertogenbosch/"
+    },
+    {
+      "address": "Postelstraat 41B",
+      "locality": "5211 DW 's-Hertogenbosch",
+      "price": 269000,
+      "url": "https://buurtje.nl/studio/postelstraat-41b-s-hertogenbosch/"
+    },
+    {
+      "address": "Leuvenstraat 3",
+      "locality": "5224 TJ 's-Hertogenbosch",
+      "price": 425000,
+      "url": "https://buurtje.nl/tussenwoning/leuvenstraat-3-s-hertogenbosch/"
+    },
+    {
+      "address": "Torenstraat 17",
+      "locality": "5211 KK 's-Hertogenbosch",
+      "price": 475000,
+      "url": "https://buurtje.nl/appartement/torenstraat-17-s-hertogenbosch/"
+    },
+    {
+      "address": "Schout van Hanswijkplein 8",
+      "locality": "5237 WX 's-Hertogenbosch",
+      "price": 497000,
+      "url": "https://buurtje.nl/appartement/schout-van-hanswijkplein-8-s-hertogenbosch/"
+    },
+    {
+      "address": "Spiegeltuin 4",
+      "locality": "5223 MZ 's-Hertogenbosch",
+      "price": 465000,
+      "url": "https://buurtje.nl/appartement/spiegeltuin-4-s-hertogenbosch/"
+    },
+    {
+      "address": "Rijnstraat 222",
+      "locality": "5215 EP 's-Hertogenbosch",
+      "price": 399000,
+      "url": "https://buurtje.nl/appartement/rijnstraat-222-s-hertogenbosch/"
+    },
+    {
+      "address": "Geysendorfferstraat 29",
+      "locality": "5224 BM 's-Hertogenbosch",
+      "price": 375000,
+      "url": "https://buurtje.nl/hoekwoning/geysendorfferstraat-29-s-hertogenbosch/"
+    },
+    {
+      "address": "Lagemorgenlaan 180",
+      "locality": "5223 JC 's-Hertogenbosch",
+      "price": 350000,
+      "url": "https://buurtje.nl/appartement/lagemorgenlaan-180-s-hertogenbosch/"
+    },
+    {
+      "address": "Lugteren 33",
+      "locality": "5237 JV 's-Hertogenbosch",
+      "price": 500000,
+      "url": "https://buurtje.nl/hoekwoning/lugteren-33-s-hertogenbosch/"
+    },
+    {
+      "address": "Maassingel 296",
+      "locality": "5215 GL 's-Hertogenbosch",
+      "price": 342500,
+      "url": "https://buurtje.nl/appartement/maassingel-296-s-hertogenbosch/"
+    },
+    {
+      "address": "Akkerseweg 8",
+      "locality": "5321 HG Hedel",
+      "price": 485000,
+      "url": "https://buurtje.nl/vrijstaande-woning/akkerseweg-8-hedel/"
+    },
+    {
+      "address": "Lagelandstraat 156",
+      "locality": "5213 CZ 's-Hertogenbosch",
+      "price": 269500,
+      "url": "https://buurtje.nl/appartement/lagelandstraat-156-s-hertogenbosch/"
+    },
+    {
+      "address": "Paul Rinkstraat 3",
+      "locality": "5246 VK Rosmalen",
+      "price": 325000,
+      "url": "https://buurtje.nl/hoekwoning/paul-rinkstraat-3-rosmalen/"
+    },
+    {
+      "address": "Koningstraat 83",
+      "locality": "5241 TN Rosmalen",
+      "price": 495000,
+      "url": "https://buurtje.nl/tussenwoning/koningstraat-83-rosmalen/"
+    },
+    {
+      "address": "Dommelborch 88",
+      "locality": "5247 SG Rosmalen",
+      "price": 285000,
+      "url": "https://buurtje.nl/appartement/dommelborch-88-rosmalen/"
+    },
+    {
+      "address": "Zesde Buitenpepers 24",
+      "locality": "5231 GV 's-Hertogenbosch",
+      "price": 459000,
+      "url": "https://buurtje.nl/appartement/zesde-buitenpepers-24-s-hertogenbosch/"
+    },
+    {
+      "address": "Groen van Prinstererlaan 78",
+      "locality": "5237 CG 's-Hertogenbosch",
+      "price": 490000,
+      "url": "https://buurtje.nl/tussenwoning/groen-van-prinstererlaan-78-s-hertogenbosch/"
+    },
+    {
+      "address": "Vlietdijk 68",
+      "locality": "5245 RE Rosmalen",
+      "price": 350000,
+      "url": "https://buurtje.nl/appartement/vlietdijk-68-rosmalen/"
+    },
+    {
+      "address": "Den-Uylborch 20",
+      "locality": "5241 HB Rosmalen",
+      "price": 475000,
+      "url": "https://buurtje.nl/tussenwoning/den-uylborch-20-rosmalen/"
+    },
+    {
+      "address": "Aartshertogenlaan 189",
+      "locality": "5212 CE 's-Hertogenbosch",
+      "price": 319500,
+      "url": "https://buurtje.nl/studio/aartshertogenlaan-189-s-hertogenbosch/"
+    },
+    {
+      "address": "Wim Richtstraat 9",
+      "locality": "5221 JB 's-Hertogenbosch",
+      "price": 495000,
+      "url": "https://buurtje.nl/hoekwoning/wim-richtstraat-9-s-hertogenbosch/"
+    },
+    {
+      "address": "Zuiderpassage 21",
+      "locality": "5216 HL 's-Hertogenbosch",
+      "price": 350000,
+      "url": "https://buurtje.nl/appartement/zuiderpassage-21-s-hertogenbosch/"
+    },
+    {
+      "address": "Onderwijsboulevard 552",
+      "locality": "5223 DN 's-Hertogenbosch",
+      "price": 472500,
+      "url": "https://buurtje.nl/appartement/onderwijsboulevard-552-s-hertogenbosch/"
+    },
+    {
+      "address": "Pastoor de Leijerstraat 84",
+      "locality": "5246 JE Rosmalen",
+      "price": 495000,
+      "url": "https://buurtje.nl/hoekwoning/pastoor-de-leijerstraat-84-rosmalen/"
+    },
+    {
+      "address": "Jacob van Heemskerckstraat 63",
+      "locality": "5223 TD 's-Hertogenbosch",
+      "price": 375000,
+      "url": "https://buurtje.nl/appartement/jacob-van-heemskerckstraat-63-s-hertogenbosch/"
+    },
+    {
+      "address": "Engelandstraat 6",
+      "locality": "5247 WX Rosmalen",
+      "price": 495000,
+      "url": "https://buurtje.nl/tussenwoning/engelandstraat-6-rosmalen/"
+    },
+    {
+      "address": "Lagelandstraat 6",
+      "locality": "5213 CS 's-Hertogenbosch",
+      "price": 280000,
+      "url": "https://buurtje.nl/appartement/lagelandstraat-6-s-hertogenbosch/"
+    },
+    {
+      "address": "Aartshertogenlaan 333",
+      "locality": "5212 CJ 's-Hertogenbosch",
+      "price": 350000,
+      "url": "https://buurtje.nl/appartement/aartshertogenlaan-333-s-hertogenbosch/"
+    }
+  ]
+}

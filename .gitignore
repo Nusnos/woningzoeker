@@ -1,0 +1,7 @@
+.vercel
+.env*.local
+.venv/
+node_modules/
+.DS_Store
+coverage/
+test-results/

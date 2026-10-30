@@ -1,0 +1,41 @@
+name: Dagelijkse woningcontrole
+on:
+  schedule:
+    - cron: '0 13 * * *'
+      timezone: Europe/Amsterdam
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-housing-check
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Controleer woningzoekopdrachten
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          PROTECTION_BYPASS: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
+        run: |
+          set -eu
+          test -n "$CRON_SECRET"
+          for attempt in 1 2 3; do
+            code=$(curl --silent --show-error --max-time 290 \
+              --output response.json --write-out '%{http_code}' \
+              --request POST \
+              --header "Authorization: Bearer $CRON_SECRET" \
+              --header "x-vercel-protection-bypass: $PROTECTION_BYPASS" \
+              --header 'Content-Type: application/json' \
+              --data '{}' \
+              'https://woningzoeker-one.vercel.app/api/cron/daily') || code=000
+            if [ "$code" = 200 ]; then
+              python3 -c 'import json; r=json.load(open("response.json")); print(r); assert r.get("skipped") != "busy"'
+              exit 0
+            fi
+            printf 'Poging %s mislukte (HTTP %s).\n' "$attempt" "$code"
+            if [ "$code" = 401 ] || [ "$code" = 403 ]; then exit 1; fi
+            sleep 20
+          done
+          exit 1

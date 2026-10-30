@@ -1,0 +1,22 @@
+{
+  "name": "woningzoeker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": { "zod": "4.6.7" },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local dev.js",
+    "start": "node --env-file-if-exists=.env.local dev.js",
+    "test": "node --test test/*.test.js",
+    "test:live": "node --env-file-if-exists=.env.local scripts/live-search.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.8.2",
+    "cheerio": "1.2.0",
+    "express": "5.3.0",
+    "nodemailer": "10.3.1"
+  }
+}

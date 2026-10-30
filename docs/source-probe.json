@@ -1,0 +1,30 @@
+{
+  "checked_at": "2026-10-30T20:34:20.472080+00:00",
+  "source": "https://buurtje.nl/koopwoningen/s-hertogenbosch/?prijs_max=500000&sorteer=nieuw",
+  "http_status": 200,
+  "matching_on_page": 26,
+  "verified_homes": [
+    {
+      "address": "Orthenstraat 41",
+      "locality": "5211 SV 's-Hertogenbosch",
+      "price": 398000,
+      "url": "https://buurtje.nl/appartement/orthenstraat-41-s-hertogenbosch/",
+      "detail_verified": true
+    },
+    {
+      "address": "Aartshertogenlaan 263",
+      "locality": "5212 CG 's-Hertogenbosch",
+      "price": 450000,
+      "url": "https://buurtje.nl/appartement/aartshertogenlaan-263-s-hertogenbosch/",
+      "detail_verified": true
+    },
+    {
+      "address": "Verwersstraat 108B",
+      "locality": "5211 HZ 's-Hertogenbosch",
+      "price": 275000,
+      "url": "https://buurtje.nl/appartement/verwersstraat-108b-s-hertogenbosch/",
+      "detail_verified": true
+    }
+  ],
+  "scope": "Live public HTML, no API contract or uptime guarantee; production egress still needs testing."
+}

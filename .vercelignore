@@ -1,0 +1,9 @@
+.venv
+node_modules
+.env*
+test
+docs
+scripts
+.github
+requirements.txt
+dev.js

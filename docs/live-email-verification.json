@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-30T20:55:02.493Z",
+  "deployment": "https://woningzoeker-gjccjxjwk-nusnos-projects.vercel.app",
+  "results": [
+    {
+      "test": "confirmation email submitted to SMTP",
+      "passed": true
+    },
+    {
+      "test": "confirmation with a complete real-inventory baseline",
+      "passed": true,
+      "baselineCount": 1
+    },
+    {
+      "test": "one TEST-labelled real-home alert accepted by SMTP",
+      "passed": true
+    },
+    {
+      "test": "duplicate daily invocation does not resend",
+      "passed": true
+    },
+    {
+      "test": "unsubscribe removes test email and search",
+      "passed": true
+    }
+  ],
+  "deliveryLimit": "SMTP acceptance verified; recipient inbox placement is not independently verified."
+}
