@@ -1,7 +1,8 @@
 // Run locally after `vercel link`. Secrets travel only on child-process stdin.
 import { randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, unlinkSync } from 'node:fs';
+import { parseEnv } from 'node:util';
 const run = (cmd, args, input) => execFileSync(cmd, args, { input, stdio: ['pipe', 'pipe', 'pipe'] }).toString();
 const scope = ['--scope', 'nusnos-projects'];
 for (const target of ['production', 'preview', 'development']) {
@@ -12,7 +13,14 @@ for (const target of ['production', 'preview', 'development']) {
 }
 const cron = randomBytes(32).toString('base64url');
 run('vercel', ['env', 'update', 'CRON_SECRET', 'production', ...scope], cron);
-run('gh', ['secret', 'set', 'CRON_SECRET', '--repo', 'Nusnos/woningzoeker'], cron);
+// Read back Vercel's actual saved value: CLI handling of an existing CRON_SECRET
+// can differ from a new env add. Never assume the supplied value was stored.
+const verificationFile = '.vercel/bootstrap-production.env';
+run('vercel', ['env', 'pull', verificationFile, '--environment=production', '--yes', ...scope]);
+const actualCron = parseEnv(readFileSync(verificationFile, 'utf8')).CRON_SECRET;
+unlinkSync(verificationFile);
+if (!actualCron) throw Error('Production CRON_SECRET readback failed');
+run('gh', ['secret', 'set', 'CRON_SECRET', '--repo', 'Nusnos/woningzoeker'], actualCron);
 console.log('Configured matching production cron and GitHub Actions secret');
 for (const target of ['production', 'preview', 'development']) {
   run('vercel', ['env', 'add', 'APP_URL', target, ...scope], 'https://woningzoeker-one.vercel.app');

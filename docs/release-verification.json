@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-30",
+  "timezone": "Europe/Amsterdam",
+  "productionUrl": "https://woningzoeker-one.vercel.app",
+  "repository": "https://github.com/Nusnos/woningzoeker",
+  "unitAndHttpTests": { "passed": 30, "failed": 0, "ciUrl": "https://github.com/Nusnos/woningzoeker/actions/runs/41127493122" },
+  "publicProductionSearch": { "passed": true, "location": "Den Bosch", "radiusKm": 5, "maxPrice": 500000, "verifiedHomes": 33 },
+  "email": { "confirmation": "passed", "testPropertyAlert": "passed", "recipientConfirmedBoth": true, "unsubscribeAndDeletion": "passed", "duplicateSuppression": "passed" },
+  "scheduling": {
+    "primary": { "cron": "0 13 * * *", "timezone": "Europe/Amsterdam", "provider": "GitHub Actions", "manualRun": "success", "runUrl": "https://github.com/Nusnos/woningzoeker/actions/runs/41127838463" },
+    "vercelFallback": [ { "scheduleUTC": "0 11 * * *", "path": "/api/cron/daily?slot=summer" }, { "scheduleUTC": "0 12 * * *", "path": "/api/cron/daily?slot=winter" } ],
+    "fallbackRegistrationVerified": true,
+    "summerWinterAndTransitionTests": "passed",
+    "note": "The first future scheduled invocation has not yet occurred. Delayed scheduler starts are possible."
+  },
+  "fixedDuringLiveTesting": [
+    "Compressed private Blob reads produced weak ETags; uncompressed reads restore safe conditional updates.",
+    "The GitHub cron secret differed from the actual saved production value; readback synchronization fixed the workflow."
+  ],
+  "limits": [
+    "Public HTML source has no official API contract or complete-market guarantee.",
+    "500 stored searches, 20 source pages per complete check and bounded daily execution time.",
+    "Ambiguous SMTP outcomes need operator review instead of blind automatic resend."
+  ]
+}
