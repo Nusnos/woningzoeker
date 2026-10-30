@@ -24,5 +24,6 @@
       "passed": true
     }
   ],
-  "deliveryLimit": "SMTP acceptance verified; recipient inbox placement is not independently verified."
+  "recipientConfirmed": true,
+  "deliveryEvidence": "The user explicitly confirmed receiving both the confirmation email and the TEST property alert on 30 October 2026. Test subscription was removed after verification."
 }
